@@ -1,21 +1,35 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
+import { useVirtualizer } from '@tanstack/react-virtual'
+import { useRef } from 'react'
+import { useMemo } from 'react'
 
 const tabs = ['全部', '待审批', '我发起的', '已完成']
 
-const mockData = [
-  { id: '1', title: '请假申请 - 张三', type: '请假', status: '待审批', time: '2024-01-15' },
-  { id: '2', title: '报销申请 - 李四', type: '报销', status: '已完成', time: '2024-01-14' },
-  { id: '3', title: '采购申请 - 王五', type: '采购', status: '待审批', time: '2024-01-13' },
-  { id: '4', title: '请假申请 - 赵六', type: '请假', status: '已驳回', time: '2024-01-12' },
-]
+const mockData = Array.from({ length: 1000 }, (_, i) => ({
+  id: String(i + 1),
+  title: `审批申请 - 用户${i + 1}`,
+  type: ['请假', '报销', '采购', '通用'][i % 4],
+  status: ['待审批', '已完成', '已驳回'][i % 3],
+  time: `2024-01-${String((i % 28) + 1).padStart(2, '0')}`,
+}))
 
 
 
 export default function ApprovalList() {
   const [activeTab, setActiveTab] = useState('全部')
   const navigate = useNavigate()
+  const parentRef = useRef<HTMLDivElement>(null)
+
+  const options = useMemo(() => ({
+    count: mockData.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 50,
+    overscan: 5,
+  }), [])
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const rowVirtualizer = useVirtualizer(options)
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -50,43 +64,57 @@ export default function ApprovalList() {
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
           </div>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left text-gray-500">
-                <th className="py-3 font-medium">标题</th>
-                <th className="py-3 font-medium">类型</th>
-                <th className="py-3 font-medium">状态</th>
-                <th className="py-3 font-medium">时间</th>
-                <th className="py-3 font-medium text-right">操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {mockData.map((item) => (
-                <tr key={item.id} className="border-b last:border-0 hover:bg-gray-50">
-                  <td className="py-3 font-medium">{item.title}</td>
-                  <td className="py-3">
-                    <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-600">{item.type}</span>
-                  </td>
-                  <td className="py-3">
-                    <span className={`px-2 py-1 text-xs rounded-full ${item.status === '待审批' ? 'bg-yellow-100 text-yellow-600' :
-                      item.status === '已完成' ? 'bg-green-100 text-green-600' :
-                        'bg-red-100 text-red-600'
-                      }`}>{item.status}</span>
-                  </td>
-                  <td className="py-3 text-gray-500">{item.time}</td>
-                  <td className="py-3 text-right">
-                    <button
-                      onClick={() => navigate(`/approval/detail/${item.id}`)}
-                      className="text-violet-600 hover:underline"
-                    >
-                      查看
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          
+          <div
+            ref={parentRef}
+            className="h-[400px] overflow-auto"
+          >
+            <div
+              style={{
+                height: `${rowVirtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+              }}
+            >
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const item = mockData[virtualRow.index]
+                return (
+                  <div
+                    key={item.id}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: `${virtualRow.size}px`,
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                    className="flex items-center border-b hover:bg-gray-50 px-4"
+                  >
+                    <div className="flex-1 text-sm font-medium">{item.title}</div>
+                    <div className="w-20">
+                      <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-600">{item.type}</span>
+                    </div>
+                    <div className="w-20">
+                      <span className={`px-2 py-1 text-xs rounded-full ${item.status === '待审批' ? 'bg-yellow-100 text-yellow-600' :
+                        item.status === '已完成' ? 'bg-green-100 text-green-600' :
+                          'bg-red-100 text-red-600'
+                        }`}>{item.status}</span>
+                    </div>
+                    <div className="w-24 text-sm text-gray-500">{item.time}</div>
+                    <div className="w-16 text-right">
+                      <button
+                        onClick={() => navigate(`/approval/detail/${item.id}`)}
+                        className="text-violet-600 hover:underline text-sm"
+                      >
+                        查看
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
 
         </CardContent>
       </Card>
