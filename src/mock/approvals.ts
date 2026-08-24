@@ -1,0 +1,17 @@
+export const mockApprovals = [
+    { id: '1', userId: '1', userName: '张三', department: '技术部', type: '请假', status: '已通过', date: '2024-01-10' },
+    { id: '2', userId: '1', userName: '张三', department: '技术部', type: '请假', status: '已通过', date: '2024-01-11' },
+    { id: '3', userId: '1', userName: '张三', department: '技术部', type: '请假', status: '已通过', date: '2024-01-12' },
+    { id: '4', userId: '2', userName: '李四', department: '技术部', type: '请假', status: '已通过', date: '2024-01-13' },
+    { id: '5', userId: '1', userName: '张三', department: '技术部', type: '请假', status: '已通过', date: '2024-01-14' },
+    { id: '6', userId: '2', userName: '李四', department: '技术部', type: '请假', status: '已通过', date: '2024-01-15' },
+    { id: '7', userId: '1', userName: '张三', department: '技术部', type: '请假', status: '已通过', date: '2024-01-16' },
+    { id: '8', userId: '1', userName: '张三', department: '技术部', type: '请假', status: '已通过', date: '2024-01-17' },
+    { id: '9', userId: '5', userName: '孙七', department: '技术部', type: '请假', status: '已通过', date: '2024-01-18' },
+    { id: '10', userId: '6', userName: '周八', department: '技术部', type: '请假', status: '已通过', date: '2024-01-18' },
+    { id: '11', userId: '7', userName: '吴九', department: '技术部', type: '请假', status: '已通过', date: '2024-01-18' },
+    { id: '12', userId: '8', userName: '郑十', department: '技术部', type: '请假', status: '已通过', date: '2024-01-18' },
+    { id: '13', userId: '9', userName: '冯十一', department: '技术部', type: '请假', status: '已通过', date: '2024-01-18' },
+    { id: '14', userId: '3', userName: '王五', department: '人事部', type: '请假', status: '已通过', date: '2024-01-15' },
+    { id: '15', userId: '4', userName: '赵六', department: '财务部', type: '请假', status: '已通过', date: '2024-01-16' },
+]

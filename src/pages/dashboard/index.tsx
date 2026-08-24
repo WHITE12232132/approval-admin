@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Chart } from '@/components/chart'
+import { useAnomalyDetection } from '@/hooks/useAnomalyDetection'
 
 const quickStats = [
   { label: '待审批', value: '8', color: '#3b82f6', trend: '+12%', up: true },
@@ -30,9 +31,26 @@ const recentApprovals = [
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('全部')
   const navigate = useNavigate()
+  const { alerts } = useAnomalyDetection()
 
   return (
     <div className="flex flex-col gap-4 w-full">
+      {alerts.length > 0 && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <h3 className="text-sm font-semibold text-red-700 mb-2">⚠️ 异常预警</h3>
+            {alerts.map((alert) => (
+              <div key={alert.id} className="flex items-center justify-between py-2 border-b border-red-100 last:border-0">
+                <div>
+                  <p className="text-sm font-medium text-red-800">{alert.message}</p>
+                  <p className="text-xs text-red-500">{alert.time}</p>
+                </div>
+                <span className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded">危险</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
       {/* 顶部四个统计卡片 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {quickStats.map((stat) => (
@@ -120,9 +138,8 @@ export default function Dashboard() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-3 py-1 text-xs rounded-lg transition-colors ${
-                    activeTab === tab ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                  className={`px-3 py-1 text-xs rounded-lg transition-colors ${activeTab === tab ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
                 >
                   {tab}
                 </button>
@@ -147,11 +164,10 @@ export default function Dashboard() {
                     <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-600">{item.type}</span>
                   </td>
                   <td className="py-3">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      item.status === '待审批' ? 'bg-yellow-100 text-yellow-600' :
-                      item.status === '已完成' ? 'bg-green-100 text-green-600' :
-                      'bg-red-100 text-red-600'
-                    }`}>{item.status}</span>
+                    <span className={`px-2 py-1 text-xs rounded-full ${item.status === '待审批' ? 'bg-yellow-100 text-yellow-600' :
+                        item.status === '已完成' ? 'bg-green-100 text-green-600' :
+                          'bg-red-100 text-red-600'
+                      }`}>{item.status}</span>
                   </td>
                   <td className="py-3 text-gray-500">{item.time}</td>
                   <td className="py-3 text-right">
