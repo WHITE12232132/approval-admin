@@ -1,47 +1,53 @@
 import { useState } from 'react'
 // useLocation	获取当前 URL 信息
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Layout, Menu, Button, Avatar, Dropdown, theme } from 'antd'
+import { Layout, Button, Avatar, Dropdown, theme } from 'antd'
 import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
-    DashboardOutlined,
-    FileTextOutlined,
     UserOutlined,
     LogoutOutlined,
 } from '@ant-design/icons'
-
+import { useUserStore } from '@/store/userStore'
 // 解构出 顶部栏 侧边栏 内容区
 const { Header, Sider, Content } = Layout
 
 // 侧边栏数据
-const menuItems = [
-    {
-        key: '/dashboard',
-        icon: <DashboardOutlined />,
-        label: '数据看板',
-    },
-    {
-        key: '/approval',
-        icon: <FileTextOutlined />,
-        label: '审批管理',
-        children: [
-            { key: '/approval', label: '审批列表' },
-            { key: '/approval/create', label: '发起审批' },
-        ],
-    },
-    {
-        key: '/profile',
-        icon: <UserOutlined />,
-        label: '个人中心',
-    },
-]
+
+
+const menuConfig: Record<string, { path: string; label: string; icon: string }[]> = {
+    employee: [
+        { path: '/dashboard', label: '数据看板', icon: '📊' },
+        { path: '/approval', label: '我的审批', icon: '📋' },
+        { path: '/approval/create', label: '发起审批', icon: '➕' },
+        { path: '/profile', label: '个人中心', icon: '👤' },
+    ],
+    manager: [
+        { path: '/dashboard', label: '数据看板', icon: '📊' },
+        { path: '/approval', label: '审批管理', icon: '📋' },
+        { path: '/approval/create', label: '发起审批', icon: '➕' },
+        { path: '/profile', label: '个人中心', icon: '👤' },
+    ],
+    hr: [
+        { path: '/dashboard', label: '数据看板', icon: '📊' },
+        { path: '/approval', label: '审批管理', icon: '📋' },
+        { path: '/approval/create', label: '发起审批', icon: '➕' },
+        { path: '/profile', label: '个人中心', icon: '👤' },
+    ],
+    finance: [
+        { path: '/dashboard', label: '数据看板', icon: '📊' },
+        { path: '/approval', label: '审批管理', icon: '📋' },
+        { path: '/profile', label: '个人中心', icon: '👤' },
+    ],
+}
 
 export default function DashboardLayout() {
+    const { role, username } = useUserStore()
     //定义折叠状态
     const [collapsed, setCollapsed] = useState(false)
     const navigate = useNavigate()
     const location = useLocation()
+    const menuItems = menuConfig[role] || menuConfig.employee
     //ant design 主题颜色token
     const { token } = theme.useToken()
 
@@ -66,25 +72,26 @@ export default function DashboardLayout() {
         <Layout style={{ minHeight: '100vh' }}>
             {/* 侧边栏按钮默认不隐藏，允许折叠 绑定折叠布尔值到变量 */}
             <Sider trigger={null} collapsible collapsed={collapsed}>
-                <div style={{
-                    height: 64,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    fontSize: collapsed ? 16 : 20,
-                    fontWeight: 'bold',
-                }}>
+                {/* Logo */}
+                <div className="h-16 flex items-center justify-center text-white font-bold">
                     {collapsed ? '审批' : '审批管理系统'}
                 </div>
-                <Menu
-                    theme="dark"
-                    mode="inline"
-                    selectedKeys={[location.pathname]}
-                    defaultOpenKeys={['/approval']}
-                    items={menuItems}
-                    onClick={({ key }) => navigate(key)}
-                />
+                {/* 菜单 */}
+                <div className="flex flex-col gap-1 px-2">
+                    {menuItems.map((item) => (
+                        <button
+                            key={item.path}
+                            onClick={() => navigate(item.path)}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${location.pathname === item.path
+                                    ? 'bg-violet-600 text-white'
+                                    : 'text-gray-300 hover:bg-gray-700'
+                                }`}
+                        >
+                            <span>{item.icon}</span>
+                            {!collapsed && <span>{item.label}</span>}
+                        </button>
+                    ))}
+                </div>
             </Sider>
 
             {/* 右侧内容 */}
@@ -106,7 +113,7 @@ export default function DashboardLayout() {
                     <Dropdown menu={{ items: userMenuItems, onClick: handleUserMenuClick }}>
                         <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
                             <Avatar icon={<UserOutlined />} />
-                            <span>管理员</span>
+                            <span>{username}</span>
                         </div>
                     </Dropdown>
                 </Header>

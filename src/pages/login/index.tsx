@@ -1,16 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Form, Input, Button, Card, message, Typography } from 'antd'
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
-
-const { Title } = Typography
+import { Card, CardContent } from '@/components/ui/card'
+import { useUserStore } from '@/store/userStore'
 
 interface LoginForm {
   username: string
   password: string
 }
 
-// 模拟登录（后续替换为真实 API）
+
 const mockLogin = (data: LoginForm): Promise<{ token: string; username: string }> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -24,83 +22,80 @@ const mockLogin = (data: LoginForm): Promise<{ token: string; username: string }
 }
 
 export default function Login() {
+
+  const { setUser } = useUserStore()
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [form, setForm] = useState<LoginForm>({ username: '', password: '' })
   const navigate = useNavigate()
 
-  const handleSubmit = async (values: LoginForm) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
     setLoading(true)
+    setError('')
     try {
-      const result = await mockLogin(values)
-      // 存储 token 和用户信息
+      const result = await mockLogin(form)
       localStorage.setItem('token', result.token)
       localStorage.setItem('username', result.username)
-      message.success('登录成功')
+      setUser(result.username, 'employee')
       navigate('/dashboard')
-    } catch (error: unknown) {
-      const errorMsg = error instanceof Error ? error.message : '登录失败'
-      message.error(errorMsg)
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : '登录失败'
+      setError(message)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      }}
-    >
-      <Card style={{ width: 400, borderRadius: 8 }}>
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <Title level={3} style={{ margin: 0 }}>审批管理系统</Title>
-          <div style={{ color: '#999', marginTop: 8 }}>企业内部审批平台</div>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600">
+      <Card className="w-[400px]">
+        <CardContent>
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold">审批管理系统</h1>
+            <p className="text-gray-500 mt-2">企业内部审批平台</p>
+          </div>
 
-        <Form
-          name="login"
-          onFinish={handleSubmit}
-          size="large"
-          initialValues={{ username: 'admin', password: '123456' }}
-        >
-          <Form.Item
-            name="username"
-            rules={[{ required: true, message: '请输入用户名' }]}
-          >
-            <Input
-              prefix={<UserOutlined />}
-              placeholder="用户名：admin"
-            />
-          </Form.Item>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+              <input
+                type="text"
+                value={form.username}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
+                placeholder="请输入用户名"
+              />
+            </div>
 
-          <Form.Item
-            name="password"
-            rules={[{ required: true, message: '请输入密码' }]}
-          >
-            <Input.Password
-              prefix={<LockOutlined />}
-              placeholder="密码：123456"
-            />
-          </Form.Item>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">密码</label>
+              <input
+                type="password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
+                placeholder="请输入密码"
+              />
+            </div>
 
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={loading}
-              block
+            {error && (
+              <div className="text-red-500 text-sm">{error}</div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-50 transition-colors"
             >
-              登录
-            </Button>
-          </Form.Item>
-        </Form>
+              {loading ? '登录中...' : '登录'}
+            </button>
+          </form>
 
-        <div style={{ textAlign: 'center', color: '#999', fontSize: 12 }}>
-          测试账号：admin / 123456
-        </div>
+          <div className="text-center text-gray-400 text-xs mt-4">
+            测试账号：admin / 123456
+          </div>
+        </CardContent>
       </Card>
     </div>
   )
