@@ -9,11 +9,19 @@ interface LoginForm {
 }
 
 
-const mockLogin = (data: LoginForm): Promise<{ token: string; username: string }> => {
+const roleMap: Record<string, { username: string; role: 'employee' | 'manager' | 'hr' | 'finance' }> = {
+  admin: { username: '张三', role: 'employee' },
+  manager: { username: '李经理', role: 'manager' },
+  hr: { username: '王HR', role: 'hr' },
+  finance: { username: '赵财务', role: 'finance' },
+}
+
+const mockLogin = (data: LoginForm): Promise<{ token: string; username: string; role: 'employee' | 'manager' | 'hr' | 'finance' }> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      if (data.username === 'admin' && data.password === '123456') {
-        resolve({ token: 'mock-jwt-token-xxx', username: '管理员' })
+      const user = roleMap[data.username]
+      if (user && data.password === '123456') {
+        resolve({ token: 'mock-jwt-token-xxx', username: user.username, role: user.role })
       } else {
         reject(new Error('用户名或密码错误'))
       }
@@ -37,7 +45,7 @@ export default function Login() {
       const result = await mockLogin(form)
       localStorage.setItem('token', result.token)
       localStorage.setItem('username', result.username)
-      setUser(result.username, 'employee')
+      setUser(result.username, result.role)
       navigate('/dashboard')
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '登录失败'
@@ -55,7 +63,7 @@ export default function Login() {
             <h1 className="text-2xl font-bold">审批管理系统</h1>
             <p className="text-gray-500 mt-2">企业内部审批平台</p>
           </div>
-
+          {/* 按钮触发函数 */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">用户名</label>
@@ -92,8 +100,9 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="text-center text-gray-400 text-xs mt-4">
-            测试账号：admin / 123456
+          <div className="text-center text-gray-400 text-xs mt-4 space-y-1">
+            <p>测试账号（密码均为 123456）：</p>
+            <p>admin → 员工 | manager → 经理 | hr → HR | finance → 财务</p>
           </div>
         </CardContent>
       </Card>

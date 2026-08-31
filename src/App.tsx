@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import DashboardLayout from '@/layouts/DashboardLayout'
+import ProtectedRoute from '@/components/ProtectedRoute'
 import Login from '@/pages/login'
 import Dashboard from '@/pages/dashboard'
 import ApprovalList from '@/pages/approval/list'
@@ -12,7 +13,11 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<DashboardLayout />}>
+        <Route path="/" element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="approval" element={<ApprovalList />} />

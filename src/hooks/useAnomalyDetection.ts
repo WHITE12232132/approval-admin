@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { mockApprovals } from '@/mock/approvals'
-import { detectAnomaly } from '@/utils/anomalyDetection'
+import { detectAnomaly, detectConsecutiveRejects } from '@/utils/anomalyDetection'
+
 //检查每个部门的请假数据，发现异常就生成预警。
 function detectApprovals(): AnomalyAlert[] {
   const alerts: AnomalyAlert[] = []
@@ -32,6 +33,18 @@ function detectApprovals(): AnomalyAlert[] {
         time: new Date().toLocaleString(),
       })
     }
+  })
+
+  // 检测连续驳回
+  const rejectAlerts = detectConsecutiveRejects(mockApprovals)
+  rejectAlerts.forEach(({ approver, count }) => {
+    alerts.push({
+      id: `reject-${approver}`,
+      department: approver,
+      message: `${approver}连续驳回 ${count} 次申请，请复核`,
+      type: 'warning',
+      time: new Date().toLocaleString(),
+    })
   })
 
   return alerts
