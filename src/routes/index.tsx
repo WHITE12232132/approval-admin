@@ -6,6 +6,7 @@ import ApprovalList from '@/pages/approval/list'
 import ApprovalCreate from '@/pages/approval/create'
 import ApprovalDetail from '@/pages/approval/detail'
 import Profile from '@/pages/profile'
+import ApprovalSuccess from '@/pages/approval/success'
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
           { index: true, element: <ApprovalList /> },
           { path: 'create', element: <ApprovalCreate /> },
           { path: 'detail/:id', element: <ApprovalDetail /> },
+          { path: 'success', element: <ApprovalSuccess /> },
         ],
       },
       { path: 'profile', element: <Profile /> },

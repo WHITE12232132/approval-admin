@@ -16,17 +16,22 @@ const roleMap: Record<string, { username: string; role: 'employee' | 'manager' |
   finance: { username: '赵财务', role: 'finance' },
 }
 
-const mockLogin = (data: LoginForm): Promise<{ token: string; username: string; role: 'employee' | 'manager' | 'hr' | 'finance' }> => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const user = roleMap[data.username]
-      if (user && data.password === '123456') {
-        resolve({ token: 'mock-jwt-token-xxx', username: user.username, role: user.role })
-      } else {
-        reject(new Error('用户名或密码错误'))
-      }
-    }, 800)
+const login = async (data: LoginForm) => {
+  const response = await fetch('/approval-api/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
   })
+
+  const result = await response.json()
+
+  if (!response.ok) {
+    throw new Error(result.message || '登录失败')
+  }
+
+  return result.data
 }
 
 export default function Login() {
@@ -42,7 +47,7 @@ export default function Login() {
     setLoading(true)
     setError('')
     try {
-      const result = await mockLogin(form)
+      const result = await login(form)
       localStorage.setItem('token', result.token)
       localStorage.setItem('username', result.username)
       setUser(result.username, result.role)

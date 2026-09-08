@@ -11,6 +11,7 @@ import type {
   ApprovalFlowConfig,
   FormFieldConfig,
 } from '@/store/types'
+import { request } from '@/utils/request'
 
 function InputField({
   placeholder,
@@ -382,8 +383,8 @@ export default function ApprovalCreate() {
     }
   }
 
-  /** 提交审批 → 构建上下文 → 跳转 detail */
-  const handleSubmit = () => {
+  /** 提交审批 → POST 保存到数据库 → 跳转成功页 */
+  const handleSubmit = async () => {
     if (!currentConfig) return
 
     // 先验证表单
@@ -391,21 +392,23 @@ export default function ApprovalCreate() {
       return
     }
 
-    const ctx = buildContextFromMapping(
-      selectedFlowType,
-      formValues,
-      currentConfig.contextMapping,
-    )
-
-    console.log('提交审批:', {
-      flowType: selectedFlowType,
-      context: ctx,
-      formValues,
-    })
-
-    navigate('/approval/detail/new', {
-      state: { flowType: selectedFlowType, context: ctx },
-    })
+    try {
+      await request('/approval-api/approvals', {
+        method: 'POST',
+        body: JSON.stringify({
+            title: `${currentConfig.shortLabel}申请`,
+            type: currentConfig.shortLabel,
+            status: '待审批',
+            time: new Date().toISOString().split('T')[0],
+            ...formValues,
+        }),
+      })
+    
+      navigate('/approval/success')
+    } catch (error) {
+      console.error('提交出错:', error)
+      alert((error as Error).message || '提交失败')
+    }
   }
 
   return (

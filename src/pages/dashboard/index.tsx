@@ -1,8 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Chart } from '@/components/chart'
 import { useAnomalyDetection } from '@/hooks/useAnomalyDetection'
+import { request } from '@/utils/request' 
+
+interface ApprovalItem {
+  id: string
+  title: string
+  type: string
+  status: string
+  time: string
+}
 
 const quickStats = [
   { label: '待审批', value: '8', color: '#3b82f6', trend: '+12%', up: true },
@@ -21,18 +30,19 @@ const pieData = {
   labels: ['请假', '报销', '采购', '通用'],
 }
 
-const recentApprovals = [
-  { id: '1', title: '请假申请 - 张三', type: '请假', status: '待审批', time: '2024-01-15' },
-  { id: '2', title: '报销申请 - 李四', type: '报销', status: '已完成', time: '2024-01-14' },
-  { id: '3', title: '采购申请 - 王五', type: '采购', status: '待审批', time: '2024-01-13' },
-  { id: '4', title: '请假申请 - 赵六', type: '请假', status: '已驳回', time: '2024-01-12' },
-]
+
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('全部')
   const navigate = useNavigate()
   const { alerts } = useAnomalyDetection()
+  const [recentApprovals, setRecentApprovals] = useState<ApprovalItem[]>([])
 
+  useEffect(() => {
+    request('/approval-api/approvals') 
+      .then(data => setRecentApprovals(data))
+      .catch(error => console.error('Error fetching approvals:', error))
+  }, [])
   return (
     <div className="flex flex-col gap-4 w-full">
       {alerts.length > 0 && (
@@ -165,8 +175,8 @@ export default function Dashboard() {
                   </td>
                   <td className="py-3">
                     <span className={`px-2 py-1 text-xs rounded-full ${item.status === '待审批' ? 'bg-yellow-100 text-yellow-600' :
-                        item.status === '已完成' ? 'bg-green-100 text-green-600' :
-                          'bg-red-100 text-red-600'
+                      item.status === '已完成' ? 'bg-green-100 text-green-600' :
+                        'bg-red-100 text-red-600'
                       }`}>{item.status}</span>
                   </td>
                   <td className="py-3 text-gray-500">{item.time}</td>

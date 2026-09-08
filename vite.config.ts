@@ -12,6 +12,11 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      '/approval-api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/approval-api/, ''),
+      },
       '/api': {
         target: 'https://api.xiaomimimo.com',
         changeOrigin: true,

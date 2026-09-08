@@ -7,6 +7,7 @@ import ApprovalList from '@/pages/approval/list'
 import ApprovalCreate from '@/pages/approval/create'
 import ApprovalDetail from '@/pages/approval/detail'
 import Profile from '@/pages/profile'
+import ApprovalSuccess from '@/pages/approval/success'
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="approval" element={<ApprovalList />} />
           <Route path="approval/create" element={<ApprovalCreate />} />
           <Route path="approval/detail/:id" element={<ApprovalDetail />} />
+          <Route path="approval/success" element={<ApprovalSuccess />} />
           <Route path="profile" element={<Profile />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
