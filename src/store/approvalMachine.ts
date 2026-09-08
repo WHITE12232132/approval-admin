@@ -6,7 +6,6 @@
  */
 
 import { createApprovalMachine } from './machineFactory'
-import type { ApprovalContext } from './types'
 
 /**
  * 默认状态机实例（请假审批，空上下文）

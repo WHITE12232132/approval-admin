@@ -9,12 +9,7 @@ interface LoginForm {
 }
 
 
-const roleMap: Record<string, { username: string; role: 'employee' | 'manager' | 'hr' | 'finance' }> = {
-  admin: { username: '张三', role: 'employee' },
-  manager: { username: '李经理', role: 'manager' },
-  hr: { username: '王HR', role: 'hr' },
-  finance: { username: '赵财务', role: 'finance' },
-}
+
 
 const login = async (data: LoginForm) => {
   const response = await fetch('/approval-api/auth/login', {

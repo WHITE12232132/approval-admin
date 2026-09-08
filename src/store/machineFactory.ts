@@ -166,7 +166,7 @@ export function createMachineFromConfig(
     id: `approval-${config.flowType}`,
     initial: config.steps[0]?.key ?? 'draft',
     context: ctx,
-    states,
+    states: states as any,
   })
 
   return machine

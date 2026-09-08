@@ -7,7 +7,6 @@ import {
   getFlowConfig,
 } from '@/store/machineFactory'
 import type {
-  ApprovalContext,
   ApprovalFlowConfig,
   FormFieldConfig,
 } from '@/store/types'
@@ -155,27 +154,7 @@ function isFieldVisible(
   return true
 }
 
-function buildContextFromMapping(
-  flowType: string,
-  formValues: Record<string, string>,
-  contextMapping: ApprovalFlowConfig['contextMapping'],
-): Partial<ApprovalContext> {
-  const ctx: Partial<ApprovalContext> = {
-    type: flowType,
-    approvalId: String(Date.now()),
-  }
 
-  for (const mapping of contextMapping) {
-    const rawValue = formValues[mapping.formField] ?? ''
-    if (mapping.transform === 'number') {
-      ; (ctx as Record<string, unknown>)[mapping.contextField] = Number(rawValue) || 0
-    } else {
-      ; (ctx as Record<string, unknown>)[mapping.contextField] = rawValue
-    }
-  }
-
-  return ctx
-}
 
 
 function initFormValues(config: ApprovalFlowConfig | undefined): Record<string, string> {
